@@ -115,5 +115,55 @@ end) is not null
 ;
 
 -- COALESE
+select 
+scheduled_arrival,
+actual_arrival,
+coalesce(actual_arrival, '2020-01-01'), -- thay thế giá trị null
+coalesce(actual_arrival, scheduled_arrival)
+from flights
+;
 -- CAST
+select 
+scheduled_arrival,
+actual_arrival,
+coalesce(cast((actual_arrival - scheduled_arrival) as varchar), 'not arrived')
+-- đổi từ dạng interval sang varchar để có thể thay thế cho cùng dạng
+from flights
+;
+
+--- string/number/datetime
+select *,
+cast(ticket_no as bigint), 
+-- từ string sang number, chỉ dùng được với string chứa chữ số, k dùng được cho string chứa abc như fare_conditions
+cast(flight_id as varchar)
+-- từ number sang string
+from ticket_flights
+;
+
+--- từ datetime sang string
+select *,
+cast(scheduled_departure as varchar)
+from flights
+;
+
 -- PIVOT TABLE
+/* tính tổng số tiền theo từng loại hóa đơn high-medium-low của từng khách:
+- high: amount > 10
+- medium: 5 <= amount <= 10
+- low: amount < 5 */
+
+select customer_id,
+sum(case
+		when amount>10 then amount
+		else 0
+	end) as high,
+sum(case
+		when (amount between 5 and 10) then amount
+		else 0
+	end) as medium,
+sum(case
+		when amount<5 then amount
+		else 0
+	end) as low
+from payment
+group by customer_id
