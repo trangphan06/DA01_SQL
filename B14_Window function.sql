@@ -1,5 +1,5 @@
--- WINDOW FUNCTION with SUM(), COUNT(), AVG(), COUNT()
---- OVER(PARTITION BY...)
+-- WINDOW FUNCTION 
+-- OVER(PARTITION BY...)
 
 /* Phân biệt Window function vs. Group by
 - Group by: gộp lại các row giống nhau và chỉ trả ra 1 kqua đã gộp
@@ -54,15 +54,18 @@ from payment
 order by payment_id
 ;
 
---- OVER(ORDER BY...)
+-- OVER(ORDER BY...)
 SELECT payment_date, amount,
 SUM(amount) OVER(ORDER BY payment_date) AS aggregate_total
 FROM PAYMENT
 ;
 
--- CÚ PHÁP
+--- CÚ PHÁP
 SELECT col1, col2,
-AGG(col2) OVER(PARTITION BY col1,col2 ORDER BY col3) 
+AGG(col2) OVER(PARTITION BY col1,col2 ORDER BY col3) --tính lũy kế theo col3 dựa vào col1, col2
 FROM table
+
+-- RANK()
+--- Challenge 2:
 
 
