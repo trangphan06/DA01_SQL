@@ -65,7 +65,46 @@ SELECT col1, col2,
 AGG(col2) OVER(PARTITION BY col1,col2 ORDER BY col3) --tính lũy kế theo col3 dựa vào col1, col2
 FROM table
 
--- RANK()
+-- RANK() OVER(...)
 --- Challenge 2:
+WITH cte AS
+(
+select 
+concat(a.first_name,' ', a.last_name) as full_name,
+d.country,
+count(e.amount) as so_luong,
+rank() over(partition by d.country order by sum(e.amount) DESC) as stt
+from customer as a
+join address as b on a.address_id=b.address_id
+join city as c on c.city_id=b.city_id
+join country as d on d.country_id=c.country_id
+join payment as e on e.customer_id=a.customer_id
+group by full_name, d.country)
 
+SELECT * FROM cte
+WHERE stt<=3
 
+-- WINDOW FUNCTION with FIRST_VALUE
+with cte as (
+select *, 
+rank() over(partition by customer_id order by payment_date DESC)
+from payment 
+)
+select * from cte
+where rank=1;
+
+select *, 
+first_value(amount) over(partition by customer_id order by payment_date DESC)
+from payment 
+
+-- WINDOW FUNCTION with LEAD(), LAG()
+select 
+to_char(payment_date,'yyyy-mm-dd') as payment_date, 
+sum(amount) as amount,
+lag(sum(amount)) over(order by to_char(payment_date,'yyyy-mm-dd')) as previous_payment,
+round(100*(sum(amount)-(lag(sum(amount)) over(order by to_char(payment_date,'yyyy-mm-dd'))))/lag(sum(amount)) over(order by to_char(payment_date,'yyyy-mm-dd')))
+as perc_diff
+from payment
+group by to_char(payment_date,'yyyy-mm-dd')
+order by payment_date
+;
