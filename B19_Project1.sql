@@ -1,0 +1,10 @@
+-- ALTER DATA TYPES
+ALTER TABLE SALES_DATASET_RFM_PRJ
+ALTER COLUMN ordernumber TYPE INT USING (ordernumber::INT),
+ALTER COLUMN quantityordered TYPE INT USING (quantityordered::INT),
+ALTER COLUMN priceeach TYPE FLOAT USING (priceeach::FLOAT),
+ALTER COLUMN orderlinenumber TYPE INT USING (orderlinenumber::INT),
+ALTER COLUMN sales TYPE FLOAT USING (sales::FLOAT),
+ALTER COLUMN orderdate TYPE TIMESTAMP USING (orderdate::TIMESTAMP),
+ALTER COLUMN msrp TYPE INT USING (msrp::INT);
+
