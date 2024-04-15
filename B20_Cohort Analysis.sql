@@ -84,39 +84,39 @@ where stt=1
 - Count số lượng KH hoặc tổng doanh thu tại mỗi cohort_date và index tương ứng
 - Pivot table */
 with cleaned_online_retail as (select invoiceno, 
-							                 stockcode, 
+				stockcode, 
                                 description, 
-							                 CAST(quantity AS int), 
-							                 CAST(invoicedate AS timestamp), 
-							                 CAST(unitprice AS numeric), 
-							                 customerid, country
-							                 from online_retail
-							                 where customerid IS NOT NULL OR customerid<>''
-					              		   and CAST(unitprice AS numeric)>0 and CAST(quantity AS int)>0
-					              		  ),
+				 CAST(quantity AS int), 
+				 CAST(invoicedate AS timestamp), 
+				 CAST(unitprice AS numeric), 
+				 customerid, country
+				 from online_retail
+				 where customerid IS NOT NULL OR customerid<>''
+			   	and CAST(unitprice AS numeric)>0 and CAST(quantity AS int)>0
+			  	),
 main_online_retail as (select * from (select  
-									                    row_number() over (partition by invoiceno, stockcode order by invoicedate) as stt, *
-									                    from cleaned_online_retail
-									                    ) as stt_table
-			          		   where stt=1),
+				    row_number() over (partition by invoiceno, stockcode order by invoicedate) as stt, *
+				    from cleaned_online_retail
+				    ) as stt_table
+		   	where stt=1),
 online_retail_index as (select customerid, amount,
-				            		to_char(first_purchased_date, 'yyyy-mm') as cohort_date,
-				            		invoicedate,
-				            		(extract('year' from invoicedate)-extract('year' from first_purchased_date))*12+
-				            		(extract('month' from invoicedate)-extract('month' from first_purchased_date))+1 as index
-				            		from (select customerid, 
-				            		      quantity*unitprice as amount,
-				            		      min(invoicedate) over(partition by customerid) as first_purchased_date,
-				            		      invoicedate
-				            		      from main_online_retail
-				            		      ) as a
-				            		),
+			to_char(first_purchased_date, 'yyyy-mm') as cohort_date,
+			invoicedate,
+			(extract('year' from invoicedate)-extract('year' from first_purchased_date))*12+
+			(extract('month' from invoicedate)-extract('month' from first_purchased_date))+1 as index
+			from (select customerid, 
+			      quantity*unitprice as amount,
+			      min(invoicedate) over(partition by customerid) as first_purchased_date,
+			      invoicedate
+			      from main_online_retail
+			      ) as a
+			),
 xxx as (select cohort_date, index, 
-		    count(distinct customerid) as count,
-		    sum(amount) as revenue						
-		    from online_retail_index
-	    	group by cohort_date, index
-		    ),
+	count(distinct customerid) as count,
+	sum(amount) as revenue						
+	from online_retail_index
+	group by cohort_date, index
+	),
 /* B3: pivot table --> cohort chart */
 xxy as (
 select cohort_date,
