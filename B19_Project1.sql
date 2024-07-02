@@ -1,3 +1,5 @@
+Dataset: https://drive.google.com/drive/folders/1IWerRguFB0-VXLrIuHmZrfRu3O-H5WXF 
+
 -- 1. ALTER DATA TYPES
 ALTER TABLE SALES_DATASET_RFM_PRJ
 ALTER COLUMN ordernumber TYPE INT USING (ordernumber::INT),
